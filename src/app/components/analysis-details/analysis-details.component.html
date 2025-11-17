@@ -1,0 +1,145 @@
+<div class="container mt-4">
+  <div class="row">
+    <div class="col-12">
+      <!-- Загрузка -->
+      @if (loading) {
+        <div class="text-center py-4">
+          <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Загрузка...</span>
+          </div>
+        </div>
+      }
+
+      <!-- Детали анализа -->
+      @if (!loading && analysis; as analysis) {
+        <div class="d-flex justify-content-between align-items-center mb-4">
+          <h2>Детали анализа: {{ analysis.fileName }}</h2>
+          <a routerLink="/history" class="btn btn-outline-secondary">
+            ← Назад к истории
+          </a>
+        </div>
+
+        <!-- Основная информация -->
+        <div class="card mb-4">
+          <div class="card-header">
+            <h5 class="mb-0">Основная информация</h5>
+          </div>
+          <div class="card-body">
+            <div class="row">
+              <div class="col-md-6">
+                <table class="table table-sm">
+                  <tbody>
+                  <tr>
+                    <td><strong>Имя файла:</strong></td>
+                    <td>{{ analysis.fileName }}</td>
+                  </tr>
+                  <tr>
+                    <td><strong>Размер файла:</strong></td>
+                    <td>{{ formatFileSize(analysis.fileSize) }}</td>
+                  </tr>
+                  <tr>
+                    <td><strong>Время загрузки:</strong></td>
+                    <td>{{ formatDate(analysis.uploadTime) }}</td>
+                  </tr>
+                  <tr>
+                    <td><strong>Статус:</strong></td>
+                    <td>
+                        <span [class]="'badge ' + getStatusClass(analysis.status)">
+                          {{ getStatusText(analysis.status) }}
+                        </span>
+                    </td>
+                  </tr>
+                  </tbody>
+                </table>
+              </div>
+              <div class="col-md-6">
+                <table class="table table-sm">
+                  <tbody>
+                  <tr>
+                    <td><strong>Начало обработки:</strong></td>
+                    <td>{{ formatDate(analysis.processStartTime) }}</td>
+                  </tr>
+                  <tr>
+                    <td><strong>Окончание обработки:</strong></td>
+                    <td>{{ formatDate(analysis.processEndTime) }}</td>
+                  </tr>
+                  <tr>
+                    <td><strong>Время обработки:</strong></td>
+                    <td>{{ analysis.processingTimeMs }} мс</td>
+                  </tr>
+                  <tr>
+                    <td><strong>Успешных записей:</strong></td>
+                    <td>{{ (analysis.successRate).toFixed(2) }}%</td>
+                  </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Статистика -->
+        <div class="card">
+          <div class="card-header">
+            <h5 class="mb-0">Статистические показатели</h5>
+          </div>
+          <div class="card-body">
+            <div class="row">
+              <div class="col-md-6">
+                <table class="table table-sm">
+                  <tbody>
+                  <tr>
+                    <td><strong>Всего записей:</strong></td>
+                    <td>{{ analysis.statistics.totalRecords }}</td>
+                  </tr>
+                  <tr>
+                    <td><strong>Обработано записей:</strong></td>
+                    <td>{{ analysis.statistics.processedRecords }}</td>
+                  </tr>
+                  <tr>
+                    <td><strong>Пропущено записей:</strong></td>
+                    <td>{{ analysis.statistics.skippedRecords }}</td>
+                  </tr>
+                  <tr>
+                    <td><strong>Уникальных значений:</strong></td>
+                    <td>{{ analysis.statistics.uniqueValuesCount }}</td>
+                  </tr>
+                  </tbody>
+                </table>
+              </div>
+              <div class="col-md-6">
+                <table class="table table-sm">
+                  <tbody>
+                  <tr>
+                    <td><strong>Минимальное значение:</strong></td>
+                    <td>{{ analysis.statistics.minValue.toFixed(4) }}</td>
+                  </tr>
+                  <tr>
+                    <td><strong>Максимальное значение:</strong></td>
+                    <td>{{ analysis.statistics.maxValue.toFixed(4) }}</td>
+                  </tr>
+                  <tr>
+                    <td><strong>Среднее значение:</strong></td>
+                    <td>{{ analysis.statistics.meanValue.toFixed(4) }}</td>
+                  </tr>
+                  <tr>
+                    <td><strong>Стандартное отклонение:</strong></td>
+                    <td>{{ analysis.statistics.stdDeviation.toFixed(4) }}</td>
+                  </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      }
+
+      <!-- Ошибка -->
+      @if (!loading && !analysis) {
+        <div class="alert alert-danger">
+          Не удалось загрузить детали анализа
+        </div>
+      }
+    </div>
+  </div>
+</div>

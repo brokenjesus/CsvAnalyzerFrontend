@@ -1,0 +1,137 @@
+<div class="container mt-4">
+  <div class="row justify-content-center">
+    <div class="col-md-8">
+      <div class="card">
+        <div class="card-header">
+          <h4 class="mb-0">Загрузка CSV файла для анализа</h4>
+        </div>
+        <div class="card-body">
+          <!-- Форма загрузки -->
+          <div class="mb-4">
+            <label for="fileInput" class="form-label">Выберите CSV файл (макс. {{ maxSizeMB }} МБ)</label>
+            <input
+              #fileInput
+              type="file"
+              class="form-control"
+              id="fileInput"
+              accept=".csv"
+              (change)="onFileSelected($event)"
+              [disabled]="loading"
+            >
+            <div class="form-text">
+              Поддерживаются только CSV файлы с колонками: timestamp, value
+            </div>
+          </div>
+
+          <!-- Выбранный файл -->
+          @if (selectedFile) {
+            <div class="alert alert-info">
+              <div class="d-flex justify-content-between align-items-center">
+                <div>
+                  <strong>Выбранный файл:</strong> {{ selectedFile!.name }}
+                  <br>
+                  <small>Размер: {{ formatFileSize(selectedFile!.size) }}</small>
+                </div>
+                <button
+                  type="button"
+                  class="btn-close"
+                  (click)="clearFile()"
+                  [disabled]="loading"
+                ></button>
+              </div>
+            </div>
+          }
+
+          <!-- Прогресс загрузки -->
+          @if (loading) {
+            <div class="mb-3">
+              <div class="progress mb-2">
+                <div
+                  class="progress-bar progress-bar-striped progress-bar-animated"
+                  role="progressbar"
+                  [style.width]="uploadProgress + '%'"
+                >
+                  {{ uploadProgress }}%
+                </div>
+              </div>
+              <small class="text-muted">Загрузка файла...</small>
+            </div>
+          }
+
+          <!-- Кнопка загрузки -->
+          <button
+            type="button"
+            class="btn btn-primary"
+            (click)="uploadFile()"
+            [disabled]="!selectedFile || loading"
+          >
+            @if (!loading) {
+              <span>Начать анализ</span>
+            }
+            @if (loading) {
+              <span>
+                <span class="spinner-border spinner-border-sm me-2"></span>
+                Загрузка...
+              </span>
+            }
+          </button>
+        </div>
+      </div>
+
+      <!-- Прогресс обработки -->
+      @if (progressEntries.length > 0) {
+        <div class="mt-4">
+          @for (entry of progressEntries; track entry.key) {
+            <div class="card mb-3">
+              <div class="card-header d-flex justify-content-between align-items-center">
+                <span>
+                  Обработка файла
+                  <a [href]="'/analysis/' + entry.key">{{ entry.key }}</a>
+                </span>
+
+                <span [class]="'badge ' + getStatusClass(entry.value.status)">
+                  {{ getStatusText(entry.value.status) }}
+                </span>
+              </div>
+              <div class="card-body">
+                <!-- Прогресс бар -->
+                <div class="progress mb-3">
+                  <div
+                    class="progress-bar"
+                    role="progressbar"
+                    [style.width]="entry.value.progress + '%'"
+                    [class]="getStatusClass(entry.value.status)"
+                  >
+                    {{ entry.value.progress }}%
+                  </div>
+                </div>
+
+                <!-- Информация о прогрессе -->
+                <div class="row">
+                  <div class="col-md-8">
+                    <small class="text-muted">{{ entry.value.message }}</small>
+                    <br>
+                    <small class="text-muted">
+                      Последнее обновление: {{ formatDate(entry.value.timestamp) }}
+                    </small>
+                  </div>
+                  <div class="col-md-4 text-end">
+                    @if (entry.value.status === ProcessingStatus.PROCESSING) {
+                      <button
+                        type="button"
+                        class="btn btn-warning btn-sm"
+                        (click)="cancelProcessing(entry.value.fileId)"
+                      >
+                        Отменить
+                      </button>
+                    }
+                  </div>
+                </div>
+              </div>
+            </div>
+          }
+        </div>
+      }
+    </div>
+  </div>
+</div>
