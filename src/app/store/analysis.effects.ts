@@ -6,7 +6,7 @@ import { AnalysisService } from '../services/analysis.service';
 import { WebSocketService } from '../services/websocket.service';
 import * as AnalysisActions from './analysis.actions';
 import { Store } from "@ngrx/store";
-import { ProcessingStatus } from "../models/analysis-result.model"; // Import ProcessingStatus
+import { ProcessingStatus } from "../models/analysis-result.model";
 
 @Injectable()
 export class AnalysisEffects {
@@ -41,12 +41,10 @@ export class AnalysisEffects {
     { dispatch: false }
   );
 
-  // New effect for re-subscribing to progress
   reSubscribeToProgress$ = createEffect(() =>
       this.actions$.pipe(
         ofType(AnalysisActions.reSubscribeToProgress),
         tap(({ fileId }) => {
-          // Only subscribe if not already subscribed
           if (!this.webSocketService.isSubscribed(fileId)) {
             console.log(`Effect: Re-subscribing to WebSocket for file: ${fileId}`);
             this.webSocketService.subscribeToProgress(fileId, progressMsg => {
@@ -71,8 +69,6 @@ export class AnalysisEffects {
     { dispatch: false }
   );
 
-  // Auto-unsubscribe logic moved from component to effect to be more reactive to state changes
-  // This effect will react to `progressUpdate` actions
   autoUnsubscribeOnCompletion$ = createEffect(() =>
       this.actions$.pipe(
         ofType(AnalysisActions.progressUpdate),
@@ -89,7 +85,7 @@ export class AnalysisEffects {
   loadHistory$ = createEffect(() =>
     this.actions$.pipe(
       ofType(AnalysisActions.loadHistory),
-      mergeMap(({ page, size }) => // Добавлен size
+      mergeMap(({ page, size }) =>
         this.analysisService.getHistory(page, size).pipe(
           map(pageResponse => AnalysisActions.loadHistorySuccess({ pageResponse })),
           catchError(error => of(AnalysisActions.loadHistoryFailure({ error: error.message })))

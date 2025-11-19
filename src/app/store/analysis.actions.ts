@@ -1,7 +1,6 @@
 import { createAction, props } from '@ngrx/store';
 import { AnalysisResult, PageResponse, ProgressMessage, FileUploadResponse } from '../models/analysis-result.model';
 
-// Загрузка файла
 export const uploadFile = createAction(
   '[Analysis] Upload File',
   props<{ file: File }>()
@@ -17,10 +16,9 @@ export const uploadFileFailure = createAction(
   props<{ error: string }>()
 );
 
-// Получение истории
 export const loadHistory = createAction(
   '[Analysis] Load History',
-  props<{ page: number; size: number }>() // Добавлен size
+  props<{ page: number; size: number }>()
 );
 
 export const loadHistorySuccess = createAction(
@@ -33,7 +31,6 @@ export const loadHistoryFailure = createAction(
   props<{ error: string }>()
 );
 
-// Получение деталей анализа
 export const loadAnalysisDetails = createAction(
   '[Analysis] Load Analysis Details',
   props<{ id: string }>()
@@ -49,7 +46,6 @@ export const loadAnalysisDetailsFailure = createAction(
   props<{ error: string }>()
 );
 
-// Удаление анализа
 export const deleteAnalysis = createAction(
   '[Analysis] Delete Analysis',
   props<{ id: string }>()
@@ -65,19 +61,16 @@ export const deleteAnalysisFailure = createAction(
   props<{ error: string }>()
 );
 
-// WebSocket прогресс
 export const progressUpdate = createAction(
   '[Analysis] Progress Update',
   props<{ progress: ProgressMessage }>()
 );
 
-// В analysis.actions.ts
 export const unsubscribeFromProgress = createAction(
   '[Analysis] Unsubscribe From Progress',
   props<{ fileId: string }>()
 );
 
-// New action to re-subscribe
 export const reSubscribeToProgress = createAction(
   '[Analysis] Re-Subscribe To Progress',
   props<{ fileId: string }>()

@@ -5,7 +5,6 @@ import * as AnalysisActions from './analysis.actions';
 export const analysisReducer = createReducer(
   initialAnalysisState,
 
-  // Загрузка файла
   on(AnalysisActions.uploadFile, (state) => ({
     ...state,
     loading: true,
@@ -26,7 +25,6 @@ export const analysisReducer = createReducer(
     uploadProgress: 0
   })),
 
-  // Получение истории
   on(AnalysisActions.loadHistory, (state) => ({
     ...state,
     loading: true,
@@ -45,7 +43,6 @@ export const analysisReducer = createReducer(
     error
   })),
 
-  // Детали анализа
   on(AnalysisActions.loadAnalysisDetails, (state) => ({
     ...state,
     loading: true,
@@ -64,7 +61,6 @@ export const analysisReducer = createReducer(
     error
   })),
 
-  // Удаление анализа
   on(AnalysisActions.deleteAnalysis, (state) => ({
     ...state,
     loading: true,
@@ -86,7 +82,6 @@ export const analysisReducer = createReducer(
     error
   })),
 
-  // Прогресс
   on(AnalysisActions.progressUpdate, (state, { progress }) => ({
     ...state,
     progress: {
@@ -95,7 +90,6 @@ export const analysisReducer = createReducer(
     }
   })),
 
-  // Отмена обработки
   on(AnalysisActions.cancelProcessing, (state) => ({
     ...state,
     loading: true

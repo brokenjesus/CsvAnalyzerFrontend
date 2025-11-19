@@ -18,7 +18,7 @@ export class HistoryComponent implements OnInit, OnDestroy {
   history: PageResponse<AnalysisResult> | null = null;
 
   currentPage = 0;
-  pageSize = 5; // Размер страницы по умолчанию
+  pageSize = 5;
 
   constructor(private store: Store<{ analysis: AnalysisState }>) {}
 

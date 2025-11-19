@@ -6,7 +6,7 @@ import { EffectsModule } from '@ngrx/effects';
 import { StoreDevtoolsModule } from '@ngrx/store-devtools';
 import { ReactiveFormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
-import { CommonModule } from '@angular/common'; // Добавляем CommonModule
+import { CommonModule } from '@angular/common';
 
 import { AppComponent } from './app.component';
 import { FileUploadComponent } from './components/file-upload/file-upload.component';
@@ -27,7 +27,7 @@ import { AnalysisEffects } from './store/analysis.effects';
     BrowserModule,
     HttpClientModule,
     ReactiveFormsModule,
-    CommonModule, // Добавляем CommonModule здесь
+    CommonModule,
     RouterModule.forRoot([
       { path: '', component: FileUploadComponent },
       { path: 'history', component: HistoryComponent },

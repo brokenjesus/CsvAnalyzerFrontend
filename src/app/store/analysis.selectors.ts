@@ -1,4 +1,3 @@
-// src/app/store/analysis.selectors.ts
 import { createSelector, createFeatureSelector } from '@ngrx/store';
 import { AnalysisState } from './analysis.state';
 

@@ -1,5 +1,5 @@
 import { Injectable } from "@angular/core";
-import {Client, IMessage, StompSubscription} from "@stomp/stompjs"; // Import StompSubscription
+import {Client, IMessage, StompSubscription} from "@stomp/stompjs";
 import {BehaviorSubject} from "rxjs";
 import {environment} from "../../environments/environment";
 import {ProgressMessage} from "../models/analysis-result.model";
@@ -10,7 +10,7 @@ import {ProgressMessage} from "../models/analysis-result.model";
 export class WebSocketService {
   private client: Client;
   private connected = new BehaviorSubject<boolean>(false);
-  private subscriptions = new Map<string, StompSubscription>(); // Track subscriptions with StompSubscription type
+  private subscriptions = new Map<string, StompSubscription>();
 
   constructor() {
     this.client = new Client({
@@ -34,7 +34,6 @@ export class WebSocketService {
     this.client.activate();
   }
 
-  // New method to check if a fileId is currently subscribed
   isSubscribed(fileId: string): boolean {
     return this.subscriptions.has(fileId);
   }
@@ -47,13 +46,13 @@ export class WebSocketService {
 
     if (this.isSubscribed(fileId)) {
       console.log(`Already subscribed to progress for fileId: ${fileId}. Skipping.`);
-      return; // Do not re-subscribe if already active
+      return;
     }
 
     const subscribeAction = () => {
       if (!this.client.connected) {
         console.log(`WebSocket not connected for file ${fileId}, retrying subscription...`);
-        setTimeout(subscribeAction, 500); // Retry until connected
+        setTimeout(subscribeAction, 500);
         return;
       }
 
@@ -63,24 +62,18 @@ export class WebSocketService {
           const progress: ProgressMessage = JSON.parse(message.body);
           callback(progress);
 
-          // Auto-unsubscribe logic moved to an NGRX effect for better state management
-          // if (progress.status === 'COMPLETED' || progress.status === 'CANCELLED') {
-          //   this.unsubscribeFromProgress(fileId);
-          // }
         } catch (e) {
           console.error(`Failed to parse progress message for file ${fileId}`, e);
         }
       });
 
-      // Store subscription for potential manual unsubscribe
       this.subscriptions.set(fileId, subscription);
       console.log(`Subscribed to /topic/progress/${fileId}. Active subscriptions: ${this.subscriptions.size}`);
 
-      // Notify the server we are interested in updates for this fileId
       this.client.publish({ destination: `/app/progress/subscribe/${fileId}`, body: '' });
     };
 
-    subscribeAction(); // Start the subscription process
+    subscribeAction();
   }
 
   unsubscribeFromProgress(fileId: string): void {
@@ -108,7 +101,7 @@ export class WebSocketService {
   }
 
   disconnect(): void {
-    this.subscriptions.forEach(sub => sub.unsubscribe()); // Unsubscribe all
+    this.subscriptions.forEach(sub => sub.unsubscribe());
     this.subscriptions.clear();
     if (this.client.active) {
       this.client.deactivate();

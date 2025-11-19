@@ -16,7 +16,7 @@ export class FileUploadComponent implements OnInit, OnDestroy {
   @ViewChild('fileInput') fileInput!: ElementRef;
 
   private subscriptions: Subscription = new Subscription();
-  private progressSubscription: Subscription | null = null; // Separate subscription for progress
+  private progressSubscription: Subscription | null = null;
 
   loading = false;
   uploadProgress = 0;
@@ -34,7 +34,6 @@ export class FileUploadComponent implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit(): void {
-    // Подписки на store
     this.subscriptions.add(
       this.store.select(selectLoading).subscribe(loading => this.loading = loading)
     );
@@ -43,48 +42,34 @@ export class FileUploadComponent implements OnInit, OnDestroy {
       this.store.select(selectUploadProgress).subscribe(progress => this.uploadProgress = progress)
     );
 
-    // New logic: Subscribe to progress and re-subscribe to WebSocket if needed
     this.progressSubscription = this.store.select(selectProgress).subscribe(progress => {
-      const prevProgressEntries = this.progressEntries; // Keep previous for comparison
+      const prevProgressEntries = this.progressEntries;
       this.progressEntries = Object.entries(progress).map(([key, value]) => ({ key, value }));
 
-      // Check for ongoing processes when the component initializes or when progress updates
       this.progressEntries.forEach(entry => {
         const fileId = entry.key;
         const currentStatus = entry.value.status;
         const previousEntry = prevProgressEntries.find(p => p.key === fileId);
         const previousStatus = previousEntry?.value.status;
 
-        // If a process is ongoing (PENDING/PROCESSING) and we are not already subscribed
-        // or if its status just changed to PENDING/PROCESSING (e.g., from an initial store load)
         const isOngoing = currentStatus === ProcessingStatus.PENDING || currentStatus === ProcessingStatus.PROCESSING;
         const wasNotOngoing = !(previousStatus === ProcessingStatus.PENDING || previousStatus === ProcessingStatus.PROCESSING);
 
         if (isOngoing && !this.wsService.isSubscribed(fileId)) {
           console.log(`Re-subscribing to WebSocket for ongoing file: ${fileId}`);
-          // Dispatch a new action to trigger the effect for re-subscription
           this.store.dispatch(AnalysisActions.reSubscribeToProgress({ fileId }));
         }
-        // If a process was ongoing and now it's completed/cancelled, ensure we unsubscribe
         else if ((currentStatus === ProcessingStatus.COMPLETED || currentStatus === ProcessingStatus.CANCELLED) && this.wsService.isSubscribed(fileId)) {
           console.log(`Auto-unsubscribing from WebSocket for completed/cancelled file: ${fileId}`);
           this.store.dispatch(AnalysisActions.unsubscribeFromProgress({ fileId }));
         }
       });
     });
-    this.subscriptions.add(this.progressSubscription); // Add to main subscriptions
+    this.subscriptions.add(this.progressSubscription);
   }
 
   ngOnDestroy(): void {
     this.subscriptions.unsubscribe();
-    // No need to disconnect the global WS here, as it might be used by other parts or reconnected
-    // Instead, the auto-unsubscribe in the progressUpdate handler should manage individual subscriptions.
-    // If you want to ensure all active subscriptions are closed on component destroy, you would iterate them here:
-    // this.progressEntries.forEach(entry => {
-    //   if (entry.value.status === ProcessingStatus.PENDING || entry.value.status === ProcessingStatus.PROCESSING) {
-    //     this.wsService.unsubscribeFromProgress(entry.key);
-    //   }
-    // });
   }
 
   onFileSelected(event: any): void {
